@@ -8,13 +8,14 @@ const Upload: React.FC = () => {
   const [result, setResult] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<string | null>(null);
   const [gradcam, setGradcam] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
-      setResult(null);  // Clear the result when a new file is selected
-      setConfidence(null); // Clear the confidence when a new file is selected
-      setGradcam(null); // Clear the Grad-CAM image when a new file is selected
+      setResult(null);
+      setConfidence(null);
+      setGradcam(null);
       updatePreview(e.target.files[0]);
     }
   };
@@ -22,9 +23,7 @@ const Upload: React.FC = () => {
   const updatePreview = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const img = document.getElementById('image-preview') as HTMLImageElement;
-      img.src = reader.result as string;
-      img.style.display = 'block';
+      setPreview(reader.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -65,8 +64,8 @@ const Upload: React.FC = () => {
         </div>
         <button type="button" className="btn btn-primary" onClick={handleSubmit}>PREDICT</button>
         <div className="preview-container">
-          <Image id="image-preview" className="preview" src="" alt="Image Preview" style={{ display: 'none' }} />
-          {gradcam && <img id="gradcam-preview" className="preview" src={gradcam} alt="Grad-CAM Preview" style={{ marginLeft: '20px' }} />}
+          {preview && <Image id="image-preview" className="preview" src={preview} alt="Image Preview" width={200} height={200} />}
+          {gradcam && <Image id="gradcam-preview" className="preview" src={gradcam} alt="Grad-CAM Preview" width={200} height={200} style={{ marginLeft: '20px' }} />}
         </div>
         {result && <div id="result" className="result">{result}</div>}
         {confidence && <div id="confidence" className="confidence">{confidence}</div>}
