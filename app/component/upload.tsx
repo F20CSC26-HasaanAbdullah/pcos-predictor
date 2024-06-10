@@ -1,15 +1,20 @@
 "use client";
 import React, { useState } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
 
 const Upload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<string | null>(null);
   const [gradcam, setGradcam] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setResult(null);  // Clear the result when a new file is selected
+      setConfidence(null); // Clear the confidence when a new file is selected
+      setGradcam(null); // Clear the Grad-CAM image when a new file is selected
       updatePreview(e.target.files[0]);
     }
   };
@@ -36,7 +41,8 @@ const Upload: React.FC = () => {
       if (data.error) {
         setResult(`Error: ${data.error}`);
       } else {
-        setResult(`Prediction: ${data.label}, Confidence: ${(data.confidence * 100).toFixed(2)}%`);
+        setResult(`Prediction: ${data.label}`);
+        setConfidence(`Confidence: ${(data.confidence * 100).toFixed(2)}%`);
         setGradcam(`data:image/jpeg;base64,${data.gradcam}`);
       }
     } catch (error) {
@@ -46,31 +52,46 @@ const Upload: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <div className="header">
-        <h1>PCOS Detection from Ultrasound Images</h1>
+    <div className="main-container">
+      <div className="container">
+        <div className="header">
+          <h1>PCOS Detection from Ultrasound Images</h1>
+        </div>
+        <div className="upload-area" id="upload-form" onClick={() => document.getElementById('file-input')?.click()}>
+          <Image src="/static/upload.png" className="upload-icon" alt="Upload Icon" width={50} height={50} />
+          Drag files here to upload or click to select files
+          <input type="file" id="file-input" name="file" accept="image/*" required hidden onChange={handleFileChange} />
+          <div id="file-name" className="file-name">{file ? `File: ${file.name}` : ''}</div>
+        </div>
+        <button type="button" className="btn btn-primary" onClick={handleSubmit}>PREDICT</button>
+        <div className="preview-container">
+          <Image id="image-preview" className="preview" src="" alt="Image Preview" style={{ display: 'none' }} />
+          {gradcam && <img id="gradcam-preview" className="preview" src={gradcam} alt="Grad-CAM Preview" style={{ marginLeft: '20px' }} />}
+        </div>
+        {result && <div id="result" className="result">{result}</div>}
+        {confidence && <div id="confidence" className="confidence">{confidence}</div>}
       </div>
-      <div className="upload-area" id="upload-form" onClick={() => document.getElementById('file-input')?.click()}>
-        <img src="/static/upload.png" className="upload-icon" alt="Upload Icon" />
-        Drag files here to upload or click to select files
-        <input type="file" id="file-input" name="file" accept="image/*" required hidden onChange={handleFileChange} />
-        <div id="file-name" className="file-name">{file ? `File: ${file.name}` : ''}</div>
-      </div>
-      <button type="button" className="btn btn-primary" onClick={handleSubmit}>PREDICT</button>
-      <div className="preview-container">
-        <img id="image-preview" className="preview" src="" alt="Image Preview" style={{ display: 'none' }} />
-        {gradcam && <img id="gradcam-preview" className="preview" src={gradcam} alt="Grad-CAM Preview" />}
-      </div>
-      {result && <div id="result" className="result">{result}</div>}
       <style jsx>{`
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        .main-container {
+          background: url('/static/Background1.png') no-repeat center center fixed;
+          background-size: cover;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          width: 100%;
+        }
         .container {
-          background: rgba(255, 255, 255, 0.8);
+          background: rgba(255, 255, 255, 0.5);
           padding: 20px;
           border-radius: 8px;
           box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           text-align: center;
           backdrop-filter: blur(10px);
-          margin: 20px;
         }
         .header {
           background-color: #e15699;
@@ -102,13 +123,12 @@ const Upload: React.FC = () => {
           color: #000;
         }
         .upload-icon {
-          width: 50px;
-          height: 50px;
           margin-bottom: 10px;
         }
         .btn-primary {
           background-color: #b2245d;
           border-color: #b2245d;
+          color: white;
           width: 50%;
           margin: 0 auto;
           display: block;
@@ -131,6 +151,11 @@ const Upload: React.FC = () => {
         }
         .result {
           margin-top: 20px;
+          font-size: 1.2em;
+          font-weight: bold;
+        }
+        .confidence {
+          margin-top: 10px;
           font-size: 1.2em;
           font-weight: bold;
         }
