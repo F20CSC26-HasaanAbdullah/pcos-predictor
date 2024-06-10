@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 
 const Upload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -54,7 +55,7 @@ const Upload: React.FC = () => {
     <div className="main-container">
       <div className="container">
         <div className="header">
-          <h1>PCOS Detection from Ultrasound Images</h1>
+          <h1 className='font-semibold'>PCOS Detection from Ultrasound Images</h1>
         </div>
         <div className="upload-area" id="upload-form" onClick={() => document.getElementById('file-input')?.click()}>
           <Image src="/static/upload.png" className="upload-icon" alt="Upload Icon" width={50} height={50} />
