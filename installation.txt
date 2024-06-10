@@ -1,0 +1,3 @@
+!pip install Flask pyngrok tensorflow
+!pip install flask flask-ngrok tensorflow
+!pip install flask-cors
